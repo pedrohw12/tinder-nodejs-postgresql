@@ -15,12 +15,17 @@ class UserController {
     const schema = Yup.object().shape({
       name: Yup.string().required(),
       email: Yup.string().email().required(),
+      bio: Yup.string().required(),
       password: Yup.string().required().min(6),
     });
 
-    if (!(await schema.isValid(req.body))) {
-      return res.status(400).json({ error: "Validation fails" });
-    }
+    schema.isValid(req.body).then(function (valid) {
+      if (valid) {
+        return;
+      } else {
+        return res.status(400).json({ error: "Validations fails!" });
+      }
+    });
 
     const userExists = await User.findOne({ where: { email: req.body.email } });
 
@@ -54,9 +59,14 @@ class UserController {
       ),
     });
 
-    if (!(await schema.isValid(req.body))) {
-      return res.status(400).json({ error: "Validation fails" });
-    }
+    schema.isValid(req.body).then(function (valid) {
+      if (valid) {
+        return;
+      } else {
+        return res.status(400).json({ error: "Validations fails!" });
+      }
+    });
+
     const { email, oldPassword } = req.body;
 
     const user = await User.findByPk(req.userId);
@@ -91,6 +101,18 @@ class UserController {
       email,
       avatar,
     });
+  }
+
+  async like(req, res) {
+    const currentUser = await User.findByPk(req.userId);
+    const { id } = req.params;
+    const userToLike = await User.findByPk(id);
+
+    currentUser.addUser(userToLike);
+
+    const user = currentUser.getUser();
+
+    return res.status(200).json({ user });
   }
 }
 

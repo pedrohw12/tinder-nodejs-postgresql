@@ -5,7 +5,6 @@ import multerConfig from "./config/multer";
 import UserController from "./app/controllers/UserController";
 import SessionController from "./app/controllers/SessionController";
 import FileController from "./app/controllers/FileController";
-import NotificationController from "./app/controllers/NotificationController";
 import ChangePasswordController from "./app/controllers/ChangePasswordController";
 
 import authMiddleware from "./app/middlewares/auth";
@@ -22,9 +21,7 @@ routes.use(authMiddleware);
 
 routes.put("/users", UserController.update);
 routes.get("/users", UserController.index);
-
-routes.get("/notifications", NotificationController.index);
-routes.put("/notifications/:id", NotificationController.update);
+routes.post("/users/like/:id", UserController.like);
 
 routes.post("/files", upload.single("file"), FileController.store);
 

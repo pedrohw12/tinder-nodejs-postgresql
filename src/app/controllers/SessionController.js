@@ -1,20 +1,18 @@
-import * as Yup from 'yup';
-import jwt from 'jsonwebtoken';
-import User from '../models/User';
-import File from '../models/File';
-import authConfig from '../../config/auth';
+import * as Yup from "yup";
+import jwt from "jsonwebtoken";
+import User from "../models/User";
+import File from "../models/File";
+import authConfig from "../../config/auth";
 
 class SessionController {
   async store(req, res) {
     const schema = Yup.object().shape({
-      email: Yup.string()
-        .email()
-        .required(),
-      password: Yup.string().required()
+      email: Yup.string().email().required(),
+      password: Yup.string().required(),
     });
 
     if (!(await schema.isValid(req.body))) {
-      return res.status(400).json({ error: 'Validation fails' });
+      return res.status(400).json({ error: "Validation fails" });
     }
     const { email, password } = req.body;
 
@@ -23,18 +21,18 @@ class SessionController {
       include: [
         {
           model: File,
-          as: 'avatar',
-          attributes: ['id', 'path', 'url']
-        }
-      ]
+          as: "avatar",
+          attributes: ["id", "path", "url"],
+        },
+      ],
     });
 
     if (!user) {
-      return res.status(401).json({ error: 'Unauthorized Error' });
+      return res.status(401).json({ error: "Unauthorized Error" });
     }
 
     if (!(await user.checkPassword(password))) {
-      return res.status(401).json({ error: 'Unauthorized Error' });
+      return res.status(401).json({ error: "Unauthorized Error" });
     }
 
     const { id, name, avatar, provider } = user;
@@ -42,14 +40,14 @@ class SessionController {
     return res.json({
       user: {
         id,
-        name, 
+        name,
         email,
         provider,
-        avatar
+        avatar,
       },
       token: jwt.sign({ id }, authConfig.secret, {
-        expiresIn: authConfig.expiresIn
-      })
+        expiresIn: authConfig.expiresIn,
+      }),
     });
   }
 }
